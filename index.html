@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#b07d0a">
+<title>Maruti Jewellers – Billing</title>
+<style>
+:root{color-scheme:light;--bg:#fbf7ec;--card:#fff;--tx:#25201a;--mut:#6f6552;--ac:#b07d0a;--gr:#1f8a4c;--bd:#e5dac0;--wn:#fff3cd;--wt:#7a5a00;--rd:#b3261e}
+*{box-sizing:border-box}
+body{margin:0 auto;background:var(--bg);color:var(--tx);font:18px system-ui,-apple-system,"Segoe UI",sans-serif;padding:max(10px,env(safe-area-inset-top)) 12px max(30px,env(safe-area-inset-bottom));max-width:520px}
+header{text-align:center;padding:6px 0 10px}
+.shop{font-size:24px;font-weight:800;color:var(--ac)}
+.gstn{font-size:13px;color:var(--mut)}
+.card{background:var(--card);border:2px solid var(--bd);border-radius:16px;padding:14px;margin-bottom:14px}
+h2{font-size:19px;margin:0 0 10px;display:flex;align-items:center}
+.n{display:inline-flex;width:30px;height:30px;border-radius:50%;background:var(--ac);color:#fff;align-items:center;justify-content:center;margin-right:10px;font-weight:700;flex:none}
+label{display:block;font-size:14px;color:var(--mut);margin:8px 0 4px}
+input,select{width:100%;padding:12px;font-size:18px;border:2px solid var(--bd);border-radius:12px;background:#fffdf7;color:var(--tx)}
+.big{font-size:34px;text-align:center;font-weight:700;padding:14px}
+.chips{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.chip{padding:12px 4px;font-size:20px;font-weight:700;border:2px solid var(--bd);border-radius:14px;background:#fffdf7;color:var(--tx)}
+.chip small{display:block;font-size:12px;font-weight:500;color:var(--mut);min-height:15px}
+.chip.on{background:var(--ac);border-color:var(--ac);color:#fff}.chip.on small{color:#fff}
+.chip.sv{grid-column:span 3}
+.r2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.r3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+button{font:inherit;font-weight:700;border-radius:14px;border:2px solid var(--ac);background:#fff;color:var(--ac);padding:14px;min-height:54px}
+button.w{width:100%;margin-top:10px}
+button.p{background:var(--ac);color:#fff}
+button.g{background:var(--gr);border-color:var(--gr);color:#fff;font-size:20px;min-height:62px}
+button.sm{min-height:0;padding:6px 10px;font-size:14px;margin:6px 6px 0 0}
+.tg{background:none;border:none;color:var(--ac);text-decoration:underline;min-height:44px;padding:6px 0;width:100%;text-align:left}
+.pv{background:#fdf3d4;border-radius:14px;padding:12px;margin-top:12px}
+.pv .t{font-size:32px;font-weight:800;color:var(--ac);text-align:center}
+.ln{display:flex;justify-content:space-between;padding:3px 0;font-size:16px}.ln span:first-child{color:var(--mut)}
+.tot{display:flex;justify-content:space-between;align-items:center;background:var(--gr);color:#fff;border-radius:14px;padding:14px;margin-top:10px;font-size:20px;font-weight:700}
+.tot b{font-size:30px}
+.warn{background:var(--wn);color:var(--wt);border:2px solid #f0d98a;border-radius:12px;padding:10px;margin-top:10px;font-size:16px}
+.ok{color:var(--gr);font-size:14px}.sp{color:var(--rd);font-size:14px;font-weight:700}
+.it{border-top:1px dashed var(--bd);padding:8px 0}
+.bl{border-top:1px solid var(--bd);padding:8px 0}.m{color:var(--mut);font-size:14px}
+#toast{position:fixed;left:12px;right:12px;bottom:calc(14px + env(safe-area-inset-bottom));background:#25201a;color:#fff;border-radius:12px;padding:12px;text-align:center;display:none;z-index:9}
+#bt{width:100%;height:170px;font-size:14px;margin-top:10px}
+#inv{display:none;font:12px Arial,sans-serif;color:#000;background:#fff}
+#inv table{width:100%;border-collapse:collapse;margin:8px 0}
+#inv th,#inv td{border:1px solid #888;padding:3px;text-align:left;font-size:10px}#inv .r{text-align:right}
+@media print{body>#app{display:none!important}#inv{display:block!important}body{background:#fff;padding:0;max-width:none}}
+</style>
+<style id="pgs"></style>
+</head>
+<body>
+<div id="app">
+<header><div class="shop">💍 Maruti Jewellers</div><div class="gstn">GSTIN 22AGLPA3497L2Z7</div></header>
+
+<div class="card">
+  <h2>📈 Today’s rates</h2>
+  <div class="r2"><div><label>Gold 24K (₹/gram)</label><input id="rate" type="number" inputmode="decimal" placeholder="0"></div>
+  <div><label>Silver (₹/gram)</label><input id="srate" type="number" inputmode="decimal" placeholder="0"></div></div>
+  <div class="r2"><div><label>GST %</label><input id="gst" type="number" inputmode="decimal" value="3"></div><div></div></div>
+  <div id="rw"></div>
+</div>
+
+<div class="card">
+  <h2>👤 Customer</h2>
+  <label>Customer name (required for bill)</label><input id="cust" type="text" placeholder="Customer name">
+  <label>Phone (optional)</label><input id="phone" type="tel" inputmode="tel">
+</div>
+
+<div class="card">
+  <h2><span class="n">1</span>Choose metal</h2>
+  <div class="chips" id="chips"></div>
+</div>
+
+<div class="card">
+  <h2><span class="n">2</span>Type weight (grams)</h2>
+  <input id="g" class="big" type="number" inputmode="decimal" placeholder="0.000">
+  <button class="tg" id="t1">+ More (stone, item name, change making charge)</button>
+  <div id="m1" style="display:none">
+    <label>Item name (optional)</label><input id="iname" type="text" placeholder="Ring, chain, bangle…">
+    <div class="r2"><div><label>Stone weight to deduct (g)</label><input id="l" type="number" inputmode="decimal"></div>
+    <div><label>Stone charge (₹)</label><input id="st" type="number" inputmode="decimal"></div></div>
+    <label>Making charge – change only for special customers</label>
+    <div class="r2"><select id="mt"><option value="pct">% of metal value</option><option value="pg">₹ per gram</option><option value="flat">Flat ₹</option></select>
+    <input id="mv" type="number" inputmode="decimal"></div>
+    <button class="sm" id="rst" style="margin-top:8px">Reset to standard</button>
+  </div>
+  <div id="pw"></div>
+  <div class="pv" id="pv"></div>
+</div>
+
+<div class="card">
+  <h2><span class="n">3</span>Add to bill</h2>
+  <button class="w p" id="add">＋ Add this item</button>
+</div>
+
+<div class="card" id="bc">
+  <h2>🧾 Bill</h2>
+  <div id="il" class="m">No items yet</div>
+  <button class="tg" id="t2">+ Discount, old gold / advance</button>
+  <div id="m2" style="display:none">
+    <div class="r2"><div><label>Discount (₹)</label><input id="disc" type="number" inputmode="decimal" value="0"></div>
+    <div><label>Old gold / advance (₹)</label><input id="adv" type="number" inputmode="decimal" value="0"></div></div>
+  </div>
+  <div id="sum"></div>
+  <div id="bact" style="display:none">
+    <button class="w g" id="sh">📤 Share bill</button>
+    <label>Print paper</label><select id="paper"><option value="a4">A4 / normal printer</option><option value="80">Thermal receipt 80 mm</option><option value="58">Thermal receipt 58 mm</option></select>
+    <button class="w p" id="pdf">📄 Print / save PDF</button>
+    <button class="w p" id="btp">🖨️ Print on Bluetooth printer</button>
+    <div class="r2"><button class="w" id="sv">💾 Save</button><button class="w" id="nw">🆕 New bill</button></div>
+  </div>
+</div>
+
+<textarea id="bt" readonly style="display:none"></textarea>
+<div class="card">
+  <h2>📒 Saved bills</h2>
+  <input id="q" type="text" placeholder="Search name, phone or bill no.">
+  <div id="bills" class="m" style="margin-top:8px"></div>
+</div>
+
+<div class="card">
+  <h2>💾 Backup</h2>
+  <div class="m">Bills are stored on this phone. Export a backup regularly, or to move to another phone.</div>
+  <button class="w" id="ex">Export backup file</button>
+  <button class="w" id="imb">Import backup file</button>
+  <input id="im" type="file" accept=".json,application/json" style="display:none">
+</div>
+</div>
+<div id="inv"></div>
+<div id="toast"></div>
+
+<script>
+var SHOP="Maruti Jewellers",GSTIN="22AGLPA3497L2Z7";
+var DEF={g:{t:"pct",v:13,x:"13% of gold value"},s:{t:"pg",v:10,x:"₹10 per gram"}};
+var KS=["24","22","20","18","16","14","s"];
+var $=function(i){return document.getElementById(i)};
+function num(v){var n=parseFloat(v);return isNaN(n)?0:n}
+function inr(n){return "₹"+n.toLocaleString("en-IN",{minimumFractionDigits:2,maximumFractionDigits:2})}
+function inr0(n){return "₹"+Math.round(n).toLocaleString("en-IN")}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function lsS(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+function lsG(k){try{return localStorage.getItem(k)}catch(e){return null}}
+function isS(k){return k==="s"}
+function lab(k){return isS(k)?"Silver":k+"K Gold"}
+function fmtD(ts){var d=new Date(ts);return d.toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"})+" "+d.toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"})}
+var toastT;function say(m){var t=$("toast");t.textContent=m;t.style.display="block";clearTimeout(toastT);toastT=setTimeout(function(){t.style.display="none"},2600)}
+
+var cur={k:"22",g:"",l:"",st:"",name:"",mt:"pct",mv:"13",ov:false};
+var items=[],bm={},curId=null,curNo=null,curAt=null,delArm=null,newArm=false;
+try{bm=JSON.parse(lsG("bills")||"{}")}catch(e){bm={}}
+
+function rates(){var g=$("gst").value;return {g:num($("rate").value),s:num($("srate").value),gp:g===""?3:num(g)}}
+function dmk(){return DEF[isS(cur.k)?"s":"g"]}
+function isDef(){var d=dmk();return cur.mt===d.t&&num(cur.mv)===d.v}
+
+function calcLine(it,R){
+  var net=Math.max(0,num(it.g)-num(it.l)),s=isS(it.k);
+  var rate=s?R.s:R.g*num(it.k)/24,val=net*rate;
+  var mk=it.mt==="pct"?val*num(it.mv)/100:it.mt==="pg"?net*num(it.mv):num(it.mv);
+  var st=num(it.st);
+  return {name:it.name,m:lab(it.k),net:net,rate:rate,gold:val,mk:mk,mt:it.mt,mv:num(it.mv),st:st,tot:val+mk+st};
+}
+
+function renderChips(){
+  var R=rates(),h="";
+  KS.forEach(function(k){var s=isS(k),p=s?R.s:R.g*num(k)/24;
+    h+='<button class="chip'+(cur.k===k?" on":"")+(s?" sv":"")+'" data-k="'+k+'">'+(s?"Silver":k+"K")+'<small>'+(p?inr0(p)+"/g":"")+'</small></button>';});
+  $("chips").innerHTML=h;
+}
+function setMetal(k){
+  var was=isS(cur.k);cur.k=k;
+  if(isS(k)!==was||!cur.ov){var d=dmk();cur.mt=d.t;cur.mv=String(d.v);cur.ov=false}
+  syncMk();renderChips();preview();
+}
+function syncMk(){$("mt").value=cur.mt;$("mv").value=cur.mv}
+function chkRates(){
+  var R=rates(),w=[],lg=num(lsG("lastG")),ls=num(lsG("lastS"));
+  if(lg&&R.g&&Math.abs(R.g-lg)/lg>0.2)w.push("Gold rate is "+Math.round(Math.abs(R.g-lg)/lg*100)+"% different from your last bill. Please check.");
+  if(ls&&R.s&&Math.abs(R.s-ls)/ls>0.2)w.push("Silver rate is "+Math.round(Math.abs(R.s-ls)/ls*100)+"% different from your last bill. Please check.");
+  $("rw").innerHTML=w.map(function(x){return '<div class="warn">⚠️ '+x+'</div>'}).join("");
+}
+
+function problems(){
+  var R=rates(),w=[],g=num(cur.g),l=num(cur.l),s=isS(cur.k);
+  if(!(s?R.s:R.g))w.push("Enter today’s "+(s?"silver":"gold")+" rate at the top.");
+  if(g>0&&l>=g)w.push("Stone weight is not less than the gross weight.");
+  if(g>500)w.push("Weight looks very large. Check the decimal point.");
+  if(cur.mt==="pct"&&num(cur.mv)>30)w.push("Making charge looks high ("+num(cur.mv)+"%).");
+  return w;
+}
+function preview(){
+  var R=rates(),c=calcLine(cur,R),w=problems();
+  $("pw").innerHTML=w.map(function(x){return '<div class="warn">⚠️ '+x+'</div>'}).join("");
+  var d=dmk(),mkTxt=cur.mt==="pct"?num(cur.mv)+"%":cur.mt==="pg"?"₹"+num(cur.mv)+"/g":"flat";
+  $("pv").innerHTML='<div class="ln"><span>Net weight</span><span>'+c.net.toFixed(3)+' g</span></div>'
+   +'<div class="ln"><span>'+lab(cur.k)+' value</span><span>'+inr(c.gold)+'</span></div>'
+   +'<div class="ln"><span>Making ('+mkTxt+')</span><span>'+inr(c.mk)+'</span></div>'
+   +(c.st?'<div class="ln"><span>Stone</span><span>'+inr(c.st)+'</span></div>':'')
+   +(isDef()?'<div class="ok">✓ Standard making charge ('+d.x+')</div>':'<div class="sp">★ Special making charge (standard: '+d.x+')</div>')
+   +'<div class="ln"><span>Price without GST</span><span>'+inr(c.tot)+'</span></div>'
+   +'<div class="ln"><span>GST '+R.gp+'%</span><span>'+inr(c.tot*R.gp/100)+'</span></div>'
+   +'<div class="t">'+inr(c.tot*(1+R.gp/100))+'</div><div class="m" style="text-align:center">Price with GST</div>';
+}
+
+function addItem(){
+  var w=problems();
+  if(num(cur.g)<=0){say("Please type the weight first");$("g").focus();return}
+  if(w.length&&w[0].indexOf("rate")>-1){say("Enter today’s rate first");return}
+  if(num(cur.g)-num(cur.l)<=0){say("Net weight must be more than zero");return}
+  items.push({k:cur.k,g:cur.g,l:cur.l,st:cur.st,name:cur.name,mt:cur.mt,mv:cur.mv});
+  cur.g=cur.l=cur.st=cur.name="";["g","l","st","iname"].forEach(function(i){$(i).value=""});
+  preview();renderBill();say("Item added ✓");
+  $("bc").scrollIntoView({behavior:"smooth"});
+}
+
+function mkBill(){
+  if(!items.length)return null;
+  var R=rates(),lines=items.map(function(it){return calcLine(it,R)});
+  var sub=0;lines.forEach(function(x){sub+=x.tot});
+  var adv=num($("adv").value),disc=Math.min(num($("disc").value),sub),taxable=0,gst=0;
+  lines.forEach(function(x){x.tx=x.tot-(sub?disc*x.tot/sub:0);x.gs=x.tx*R.gp/100;x.inc=x.tx+x.gs;taxable+=x.tx;gst+=x.gs});
+  var grand=taxable+gst,total=Math.round(grand);
+  return {lines:lines,sub:sub,disc:disc,taxable:taxable,gp:R.gp,gst:gst,ro:total-grand,total:total,adv:adv,pay:total-adv,cust:$("cust").value.trim(),phone:$("phone").value.trim(),gr:R.g,sr:R.s,no:curNo,at:curAt};
+}
+function renderBill(){
+  var b=mkBill();
+  if(!b){$("il").textContent="No items yet";$("sum").innerHTML="";$("bact").style.display="none";return}
+  var h="";
+  b.lines.forEach(function(x,i){
+    h+='<div class="it"><b>'+(i+1)+". "+esc(x.name||x.m)+'</b> <span class="m">('+x.m+' · Net '+x.net.toFixed(3)+' g)</span>'
+     +'<div class="ln"><span>Without GST</span><span>'+inr(x.tx)+'</span></div>'
+     +'<div class="ln"><span>GST '+b.gp+'%</span><span>'+inr(x.gs)+'</span></div>'
+     +'<div class="ln"><b style="color:var(--tx)">With GST</b><b>'+inr(x.inc)+'</b></div>'
+     +'<a href="#" data-rm="'+i+'" style="color:var(--rd);font-size:14px">Remove</a></div>';
+  });
+  $("il").innerHTML=h;
+  $("sum").innerHTML=(b.disc?'<div class="ln"><span>Subtotal</span><span>'+inr(b.sub)+'</span></div><div class="ln"><span>Discount</span><span>− '+inr(b.disc)+'</span></div>':'')
+   +'<div class="ln"><b style="color:var(--tx)">Amount without GST</b><b>'+inr(b.taxable)+'</b></div>'
+   +'<div class="ln"><span>CGST '+b.gp/2+'%</span><span>'+inr(b.gst/2)+'</span></div>'
+   +'<div class="ln"><span>SGST '+b.gp/2+'%</span><span>'+inr(b.gst/2)+'</span></div>'
+   +'<div class="ln"><span>Total GST</span><span>'+inr(b.gst)+'</span></div>'
+   +'<div class="ln"><b style="color:var(--tx)">Amount with GST</b><b>'+inr(b.taxable+b.gst)+'</b></div>'
+   +'<div class="ln"><span>Round off</span><span>'+(b.ro>=0?"+":"−")+" "+inr(Math.abs(b.ro))+'</span></div>'
+   +(b.adv?'<div class="ln"><span>Bill total</span><span>'+inr(b.total)+'</span></div><div class="ln"><span>Less advance</span><span>− '+inr(b.adv)+'</span></div>':'')
+   +'<div class="tot"><span>To pay</span><b>'+inr(b.pay)+'</b></div>';
+  $("bact").style.display="block";
+}
+
+function persist(b){
+  if(!curId){
+    var d=new Date(),p=function(n){return ("0"+n).slice(-2)},ds=p(d.getFullYear()%100)+p(d.getMonth()+1)+p(d.getDate());
+    var n=(+lsG("seq_"+ds)||0)+1;lsS("seq_"+ds,n);
+    curNo="MJ"+ds+"-"+("00"+n).slice(-3);curId="b"+Date.now();curAt=Date.now();
+  }
+  b.no=curNo;b.id=curId;b.at=curAt;b.upd=Date.now();
+  bm[curId]=b;lsS("bills",JSON.stringify(bm));
+  if(b.gr)lsS("lastG",b.gr);if(b.sr)lsS("lastS",b.sr);
+  renderBills();return b;
+}
+function norm(b){b.lines.forEach(function(x){if(x.tx===undefined){x.tx=x.tot;x.gs=x.tot*b.gp/100;x.inc=x.tx+x.gs}});return b}
+function billText(b){
+  norm(b);
+  var t="*"+SHOP+"*\nGSTIN: "+GSTIN+"\nBill: "+b.no+" | "+fmtD(b.at)+"\nCustomer: "+(b.cust||"-")+(b.phone?" ("+b.phone+")":"")+"\n\n";
+  b.lines.forEach(function(x,i){
+    t+=(i+1)+". "+(x.name||x.m)+" ("+x.m+")\n   Net "+x.net.toFixed(3)+" g @ "+inr(x.rate)+"/g\n   Metal "+inr(x.gold)+" + Making "+inr(x.mk)+(x.st?" + Stone "+inr(x.st):"")+"\n   Without GST: "+inr(x.tx)+"\n   GST "+b.gp+"%: "+inr(x.gs)+"\n   *With GST: "+inr(x.inc)+"*\n";
+  });
+  t+="\n";
+  if(b.disc)t+="Subtotal: "+inr(b.sub)+"\nDiscount: -"+inr(b.disc)+"\n";
+  t+="Amount without GST: "+inr(b.taxable)+"\nCGST "+b.gp/2+"%: "+inr(b.gst/2)+"\nSGST "+b.gp/2+"%: "+inr(b.gst/2)+"\nTotal GST: "+inr(b.gst)+"\nAmount with GST: "+inr(b.taxable+b.gst)+"\n*Total: "+inr(b.total)+"*";
+  if(b.adv)t+="\nLess advance: -"+inr(b.adv)+"\n*To pay: "+inr(b.pay)+"*";
+  return t+"\n\nThank you! Visit again 🙏";
+}
+function invHTML(b){
+  norm(b);
+  var rows=b.lines.map(function(x,i){return "<tr><td>"+(i+1)+"</td><td>"+esc(x.name||"Item")+"<br>"+esc(x.m)+"</td><td class=r>"+x.net.toFixed(3)+"</td><td class=r>"+x.rate.toFixed(2)+"</td><td class=r>"+x.gold.toFixed(2)+"</td><td class=r>"+x.mk.toFixed(2)+"</td><td class=r>"+x.st.toFixed(2)+"</td><td class=r>"+x.tx.toFixed(2)+"</td><td class=r>"+x.gs.toFixed(2)+"</td><td class=r>"+x.inc.toFixed(2)+"</td></tr>"}).join("");
+  function tr(a,v,bold){return "<tr><td colspan=9 class=r>"+(bold?"<b>"+a+"</b>":a)+"</td><td class=r>"+(bold?"<b>"+v+"</b>":v)+"</td></tr>"}
+  return '<div style="text-align:center"><div style="font-size:22px;font-weight:bold">'+SHOP+'</div><div>GSTIN: '+GSTIN+'</div><div style="font-weight:bold;margin-top:4px">TAX INVOICE</div></div>'
+   +'<table style="border:none;margin:6px 0"><tr><td style="border:none;font-size:12px">Bill No: <b>'+esc(b.no)+'</b></td><td style="border:none;font-size:12px" class=r>Date: '+fmtD(b.at)+'</td></tr><tr><td style="border:none;font-size:12px" colspan=2>Customer: <b>'+esc(b.cust||"-")+'</b>'+(b.phone?" ("+esc(b.phone)+")":"")+'</td></tr></table>'
+   +'<table><tr><th>#</th><th>Item</th><th class=r>Net wt (g)</th><th class=r>Rate/g</th><th class=r>Metal value</th><th class=r>Making</th><th class=r>Stone</th><th class=r>Without GST</th><th class=r>GST '+b.gp+'%</th><th class=r>With GST</th></tr>'+rows
+   +(b.disc?tr("Subtotal",b.sub.toFixed(2))+tr("Discount","-"+b.disc.toFixed(2)):"")
+   +tr("Amount without GST",b.taxable.toFixed(2))+tr("CGST "+b.gp/2+"%",(b.gst/2).toFixed(2))+tr("SGST "+b.gp/2+"%",(b.gst/2).toFixed(2))
+   +tr("Total GST",b.gst.toFixed(2))+tr("Amount with GST",(b.taxable+b.gst).toFixed(2))
+   +tr("Round off",b.ro.toFixed(2))+tr("Total","Rs. "+b.total.toFixed(2),1)
+   +(b.adv?tr("Less advance / old gold","-"+b.adv.toFixed(2))+tr("Amount payable","Rs. "+b.pay.toFixed(2),1):"")
+   +'</table><div style="margin-top:14px;font-size:12px">Thank you! Visit again.</div><div style="margin-top:30px;text-align:right;font-size:12px">Authorised signatory</div>';
+}
+var PW=lsG("paper")||"a4";
+function receipt(b){
+  norm(b);
+  var W=PW==="58"?32:48,L=[];
+  function ln(c){return new Array(W+1).join(c)}
+  function ct(x){x=String(x);return x.length>=W?x:new Array(Math.floor((W-x.length)/2)+1).join(" ")+x}
+  function lr(a,v){a=String(a);v=String(v);var sp=W-a.length-v.length;if(sp<1){a=a.slice(0,Math.max(1,W-v.length-1));sp=W-a.length-v.length}return a+new Array(sp+1).join(" ")+v}
+  function m(n){return n.toFixed(2)}
+  L.push(ct(SHOP),ct("GSTIN "+GSTIN),ln("-"),ct("TAX INVOICE"),"Bill: "+b.no,"Date: "+fmtD(b.at),"Name: "+(b.cust||"-"));
+  if(b.phone)L.push("Phone: "+b.phone);
+  L.push(ln("="));
+  b.lines.forEach(function(x,i){
+    L.push((i+1)+". "+(x.name?x.name+" ":"")+"("+x.m+")","   Net "+x.net.toFixed(3)+"g @ "+m(x.rate),lr("   Metal value",m(x.gold)),lr("   Making",m(x.mk)));
+    if(x.st)L.push(lr("   Stone",m(x.st)));
+    L.push(lr("   Without GST",m(x.tx)),lr("   GST "+b.gp+"%",m(x.gs)),lr("   With GST",m(x.inc)),ln("-"));
+  });
+  if(b.disc)L.push(lr("Subtotal",m(b.sub)),lr("Discount","-"+m(b.disc)));
+  L.push(lr("Amount without GST",m(b.taxable)),lr("CGST "+b.gp/2+"%",m(b.gst/2)),lr("SGST "+b.gp/2+"%",m(b.gst/2)),lr("Total GST",m(b.gst)),lr("Amount with GST",m(b.taxable+b.gst)),lr("Round off",m(b.ro)),ln("="),lr("TOTAL Rs.",m(b.total)));
+  if(b.adv)L.push(lr("Less advance","-"+m(b.adv)),lr("TO PAY Rs.",m(b.pay)));
+  L.push(ln("="),ct("Thank you! Visit again"));
+  return L.join("\n");
+}
+function printBill(b){
+  if(PW==="a4"){$("inv").innerHTML=invHTML(b);$("pgs").textContent="@page{size:A4;margin:10mm}"}
+  else{$("inv").innerHTML='<pre style="font:'+(PW==="58"?"11px":"12px")+'/1.3 monospace;white-space:pre-wrap;margin:0">'+esc(receipt(norm(b)))+'</pre>';$("pgs").textContent="@page{size:"+PW+"mm auto;margin:2mm}"}
+  setTimeout(function(){window.print()},150);
+}
+var btChar=null;
+async function btPrint(b){
+  if(!navigator.bluetooth){say("Bluetooth printing works in Chrome on Android. Use Print / save PDF instead.");return}
+  try{
+    if(!btChar){
+      var dev=await navigator.bluetooth.requestDevice({acceptAllDevices:true,optionalServices:["000018f0-0000-1000-8000-00805f9b34fb","e7810a71-73ae-499d-8c15-faa9aef0c3f2","49535343-fe7d-4ae5-8fa9-9fafd205e455","0000ff00-0000-1000-8000-00805f9b34fb","0000fee7-0000-1000-8000-00805f9b34fb"]});
+      dev.addEventListener("gattserverdisconnected",function(){btChar=null});
+      var srv=await dev.gatt.connect(),svcs=await srv.getPrimaryServices();
+      for(var i=0;i<svcs.length&&!btChar;i++){var cs=await svcs[i].getCharacteristics();for(var j=0;j<cs.length;j++){if(cs[j].properties.write||cs[j].properties.writeWithoutResponse){btChar=cs[j];break}}}
+      if(!btChar){say("Could not find the printer’s write channel");return}
+    }
+    var txt=receipt(b)+"\n\n\n\n",bytes=[0x1B,0x40];
+    for(var k=0;k<txt.length;k++){var c=txt.charCodeAt(k);bytes.push(c<128?c:63)}
+    for(var o=0;o<bytes.length;o+=100){
+      var ch=new Uint8Array(bytes.slice(o,o+100));
+      if(btChar.writeValueWithoutResponse)await btChar.writeValueWithoutResponse(ch);else await btChar.writeValue(ch);
+      await new Promise(function(r){setTimeout(r,40)});
+    }
+    say("Sent to printer ✓");
+  }catch(e){btChar=null;say("Printer not connected: "+(e&&e.name==="NotFoundError"?"no printer selected":"try again"))}
+}
+function showText(t){var b=$("bt");b.value=t;b.style.display="block"}
+function shareText(t){
+  if(navigator.share){navigator.share({text:t}).catch(function(e){if(e&&e.name!=="AbortError")copyText(t)})}else copyText(t);
+}
+function copyText(t){
+  showText(t);
+  try{navigator.clipboard.writeText(t).then(function(){say("Copied – paste it in WhatsApp")},function(){say("Select the text and copy it")})}catch(e){say("Select the text and copy it")}
+}
+
+function renderBills(){
+  var q=$("q").value.toLowerCase(),a=Object.keys(bm).map(function(k){return bm[k]}).sort(function(x,y){return y.at-x.at}),h="";
+  a.filter(function(b){return !q||(b.cust||"").toLowerCase().indexOf(q)>-1||(b.phone||"").indexOf(q)>-1||(b.no||"").toLowerCase().indexOf(q)>-1}).slice(0,100).forEach(function(b){
+    h+='<div class="bl"><b style="color:var(--tx)">'+esc(b.no)+'</b> · '+esc(b.cust||"Walk-in")+'<div class="m">'+fmtD(b.at)+' · Total '+inr(b.total)+'</div>'
+     +'<button class="sm" data-v="'+b.id+'">View</button><button class="sm" data-s="'+b.id+'">Share</button><button class="sm" data-p="'+b.id+'">PDF</button><button class="sm" data-d="'+b.id+'">'+(delArm===b.id?"Tap again":"Delete")+'</button></div>';
+  });
+  $("bills").innerHTML=h||"No saved bills yet";
+}
+
+document.addEventListener("input",function(e){
+  var id=e.target.id;
+  if(id==="g"||id==="l"||id==="st"||id==="iname"){cur.g=$("g").value;cur.l=$("l").value;cur.st=$("st").value;cur.name=$("iname").value;preview()}
+  else if(id==="mt"||id==="mv"){cur.mt=$("mt").value;cur.mv=$("mv").value;cur.ov=!isDef();preview()}
+  else if(id==="rate"||id==="srate"||id==="gst"){lsS(id,e.target.value);chkRates();renderChips();preview();renderBill()}
+  else if(id==="disc"||id==="adv"||id==="cust"||id==="phone")renderBill();
+  else if(id==="q")renderBills();
+});
+document.addEventListener("click",function(e){
+  var t=e.target.closest?(e.target.closest("[data-k],[data-rm],[data-v],[data-s],[data-p],[data-d]")||e.target):e.target,d=t.dataset||{};
+  if(d.k)setMetal(d.k);
+  if(d.rm!==undefined){e.preventDefault();items.splice(+d.rm,1);renderBill()}
+  var id=d.v||d.s||d.p||d.d,b=id&&bm[id];
+  if(b){
+    if(d.v){showText(billText(b));$("bt").scrollIntoView({behavior:"smooth"})}
+    else if(d.s)shareText(billText(b));
+    else if(d.p)printBill(b);
+    else if(delArm===id){delArm=null;delete bm[id];lsS("bills",JSON.stringify(bm));renderBills();say("Bill deleted")}
+    else{delArm=id;renderBills();setTimeout(function(){delArm=null;renderBills()},4000)}
+  }
+});
+$("t1").onclick=function(){var m=$("m1");m.style.display=m.style.display==="none"?"block":"none"};
+$("t2").onclick=function(){var m=$("m2");m.style.display=m.style.display==="none"?"block":"none"};
+$("rst").onclick=function(){var d=dmk();cur.mt=d.t;cur.mv=String(d.v);cur.ov=false;syncMk();preview()};
+$("add").onclick=addItem;
+function needName(){
+  if($("cust").value.trim())return false;
+  say("Please enter customer name first");$("cust").scrollIntoView({behavior:"smooth",block:"center"});$("cust").focus();return true;
+}
+$("sv").onclick=function(){if(needName())return;var b=mkBill();if(!b)return;persist(b);say("Saved as "+curNo+" ✓")};
+$("sh").onclick=function(){if(needName())return;var b=mkBill();if(!b)return;b=persist(b);shareText(billText(b))};
+$("pdf").onclick=function(){if(needName())return;var b=mkBill();if(!b)return;b=persist(b);printBill(b)};
+$("btp").onclick=function(){if(needName())return;var b=mkBill();if(!b)return;b=persist(b);btPrint(b)};
+$("paper").value=PW;
+$("paper").onchange=function(){PW=$("paper").value;lsS("paper",PW)};
+$("nw").onclick=function(){
+  if(items.length&&!newArm){newArm=true;$("nw").textContent="Tap again to clear";setTimeout(function(){newArm=false;$("nw").textContent="🆕 New bill"},3500);return}
+  newArm=false;$("nw").textContent="🆕 New bill";
+  items=[];curId=curNo=curAt=null;["cust","phone"].forEach(function(i){$(i).value=""});$("disc").value=0;$("adv").value=0;
+  $("bt").style.display="none";var d=dmk();cur.mt=d.t;cur.mv=String(d.v);cur.ov=false;syncMk();preview();renderBill();window.scrollTo(0,0);
+};
+$("ex").onclick=async function(){
+  var data=JSON.stringify({v:2,rates:{gold:$("rate").value,silver:$("srate").value,gst:$("gst").value},bills:bm});
+  var fn="maruti-backup-"+new Date().toISOString().slice(0,10)+".json";
+  try{
+    var dl=(window.claude&&claude.use)?await claude.use("downloads"):null;
+    if(dl){await dl.save({filename:fn,data:data});say("Backup saved ✓")}
+    else{var a=document.createElement("a");a.href=URL.createObjectURL(new Blob([data],{type:"application/json"}));a.download=fn;document.body.appendChild(a);a.click();a.remove();say("Backup file created")}
+  }catch(e){say("Backup was not saved")}
+};
+$("imb").onclick=function(){$("im").click()};
+$("im").onchange=function(e){
+  var f=e.target.files[0];if(!f)return;var r=new FileReader();
+  r.onload=function(){try{var d=JSON.parse(r.result);Object.keys(d.bills||{}).forEach(function(k){bm[k]=d.bills[k]});lsS("bills",JSON.stringify(bm));renderBills();
+    if(d.rates){$("rate").value=d.rates.gold||"";$("srate").value=d.rates.silver||"";$("gst").value=d.rates.gst||3;["rate","srate","gst"].forEach(function(i){lsS(i,$(i).value)})}
+    renderChips();preview();say("Backup imported ✓")}catch(x){say("Not a valid backup file")}};
+  r.readAsText(f);
+};
+
+["rate","srate","gst"].forEach(function(i){var v=lsG(i);if(v!==null)$(i).value=v});
+setMetal("22");chkRates();renderBill();renderBills();
+</script>
+</body>
+</html>
